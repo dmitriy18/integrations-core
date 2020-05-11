@@ -21,6 +21,7 @@ from . import common
 pytestmark = pytest.mark.usefixtures("dd_environment")
 
 
+@pytest.mark.usefixtures("clear_mib_builder")
 def test_command_generator():
     """
     Command generator's parameters should match init_config
@@ -104,6 +105,7 @@ def test_snmpget(aggregator):
     aggregator.all_metrics_asserted()
 
 
+@pytest.mark.usefixtures("clear_mib_builder")
 def test_custom_mib(aggregator):
     instance = common.generate_instance_config([oid for oid, _, _ in common.DUMMY_MIB_OID])
     instance["community_string"] = "dummy"

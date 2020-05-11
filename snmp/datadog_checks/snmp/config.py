@@ -13,7 +13,10 @@ from .pysnmp_types import (
     CommunityData,
     ContextData,
     DirMibSource,
+    MibBuilder,
+    MibInstrumController,
     MibViewController,
+    MsgAndPduDispatcher,
     OctetString,
     SnmpEngine,
     UdpTransportTarget,
@@ -54,6 +57,9 @@ class InstanceConfig:
         'aes192c': 'usmAesCfb192Protocol',
         'aes256c': 'usmAesCfb256Protocol',
     }
+
+    _mib_builder = None
+    _mib_instrum = None
 
     def __init__(
         self,
@@ -183,19 +189,27 @@ class InstanceConfig:
         # type: (str) -> None
         self.tags.append('snmp_profile:{}'.format(profile_name))
 
-    @staticmethod
-    def create_snmp_engine(mibs_path=None):
+    @classmethod
+    def _get_mib_builder(cls, mibs_path):
+        if cls._mib_builder is None:
+            cls._mib_builder = MibBuilder()
+            if mibs_path:
+                cls._mib_builder.addMibSources(DirMibSource(mibs_path))
+            cls._mib_instrum = MibInstrumController(cls._mib_builder)
+            cls._message_dispatcher = MsgAndPduDispatcher(cls._mib_instrum)
+        return cls._mib_builder, cls._mib_instrum, cls._message_dispatcher
+
+    @classmethod
+    def create_snmp_engine(cls, mibs_path):
         # type: (str) -> Tuple[SnmpEngine, MibViewController]
         """
         Create a command generator to perform all the snmp query.
         If mibs_path is not None, load the mibs present in the custom mibs
         folder. (Need to be in pysnmp format)
         """
-        snmp_engine = SnmpEngine()
-        mib_builder = snmp_engine.getMibBuilder()
-
-        if mibs_path is not None:
-            mib_builder.addMibSources(DirMibSource(mibs_path))
+        mib_builder, instrum_controller, message_dispatcher = cls._get_mib_builder(mibs_path)
+        #message_dispatcher = MsgAndPduDispatcher(instrum_controller)
+        snmp_engine = SnmpEngine(msgAndPduDsp=message_dispatcher)
 
         mib_view_controller = MibViewController(mib_builder)
 

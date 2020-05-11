@@ -10,6 +10,8 @@ import requests
 
 from datadog_checks.dev import TempDir, docker_run
 
+from datadog_checks.snmp.config import InstanceConfig
+
 from .common import (
     COMPOSE_DIR,
     SCALAR_OBJECTS,
@@ -46,3 +48,10 @@ def dd_environment():
             yield generate_container_instance_config(
                 SCALAR_OBJECTS + SCALAR_OBJECTS_WITH_TAGS + TABULAR_OBJECTS
             ), E2E_METADATA
+
+
+@pytest.fixture
+def clear_mib_builder():
+    InstanceConfig._mib_builder = None
+    yield
+    InstanceConfig._mib_builder = None
