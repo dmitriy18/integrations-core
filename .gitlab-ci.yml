@@ -26,6 +26,8 @@ stages:
 validate-log-integrations:
   stage: validate
   image: $VALIDATE_LOG_INTGS
+  only:
+  - schedules
   variables:
     WEBUI_INTGS_FILE: web-ui/javascript/datadog/logs/lib/integrations/integrations.ts
     LOGS_BACKEND_INTGS_ROOT: logs-backend/service/src/main/resources/integrations/
@@ -40,6 +42,8 @@ validate-log-integrations:
 notify-slack-on-failure:
   stage: notify
   image: $NOTIFIER_IMAGE
+  only:
+  - schedules
   variables:
     MESSAGE: ":alert: Logs pipelines don't pass validation steps, please investigate $CI_PIPELINE_URL for errors."
   script:
@@ -113,11 +117,11 @@ tagger-image-builder:
 validate-log-intgs-builder:
   stage: build
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/docker:18.03.1
-  #only:
-    #changes:
-     # - .gitlab/validate-logs-intgs/**
-    #refs:
-    #  - master
+  only:
+    changes:
+      - .gitlab/validate-logs-intgs/**
+    refs:
+      - master
   script:
     - cd .gitlab/validate-logs-intgs/
     - docker build --tag $VALIDATE_LOG_INTGS .

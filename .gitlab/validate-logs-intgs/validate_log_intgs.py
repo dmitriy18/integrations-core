@@ -22,6 +22,7 @@ EXCEPTIONS = {
         ERR_UNEXPECTED_LOG_COLLECTION_CAT,  # cilium does not need a pipeline to automatically parse the logs
         ERR_UNEXPECTED_LOG_DOC  # The documentation says to use 'source: cilium'
     ],
+    'mesos_master': [ERR_UNEXPECTED_LOG_COLLECTION_CAT], # We do support log collection for mesos environments
     'amazon_eks': [ERR_UNEXPECTED_LOG_COLLECTION_CAT], # eks is just a tile
     'eks_fargate': [ERR_UNEXPECTED_LOG_COLLECTION_CAT], # Log collection but not from the agent
     'fluentd': [ERR_UNEXPECTED_LOG_COLLECTION_CAT],  # Fluentd is about log collection but we don't collect fluentd logs
